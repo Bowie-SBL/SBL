@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>sbl.gg — Science-Based Lifting Forum</title>
+<style>
+  :root {
+    --bg:#ffffff; --panel:#ffffff; --row-hover:#f5f9ff; --border:#e5eaf1;
+    --text:#0b1524; --muted:#6b7787; --navy:#22305a; --accent:#1a66e0; --accent-dim:#1550b8;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.55; }
+  a { color:var(--accent); text-decoration:none; cursor:pointer; }
+  a:hover { text-decoration:underline; }
+  .wrap { max-width:1000px; margin:0 auto; padding:0 20px; }
+
+  /* Top bar */
+  header.top { background:var(--navy); border-bottom:4px solid transparent;
+    border-image:linear-gradient(90deg,#1a66e0,#5b9cff 45%,#14a37f) 1; }
+  header.top .wrap { display:flex; align-items:center; gap:12px; padding:18px 20px; }
+  .logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+  .logo:hover { text-decoration:none; }
+  .logo svg { display:block; filter:drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+  .logo .words { display:flex; flex-direction:column; line-height:1.05; }
+  .logo .name { color:#fff; font-weight:900; font-size:1.7rem; letter-spacing:-0.03em; }
+  .logo .name .tld { color:#8fb6ff; }
+  .logo .sub { color:#c3d0ec; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; margin-top:3px; }
+  header.top .strap { color:#e3eaf8; font-size:0.95rem; font-style:italic; margin-left:auto; text-align:right; max-width:340px; }
+  @media (max-width:720px) { header.top .strap { display:none; } }
+
+  /* Featured debate */
+  .featured { display:block; position:relative; overflow:hidden; border-radius:14px; margin-bottom:22px;
+    padding:22px 24px 20px; background:linear-gradient(120deg,var(--navy) 0%,#2b3f7a 60%,#1a66e0 130%);
+    color:#fff; text-decoration:none; }
+  .featured:hover { text-decoration:none; filter:brightness(1.06); }
+  .featured .kicker { display:inline-flex; align-items:center; gap:6px; font-size:0.7rem; font-weight:800;
+    text-transform:uppercase; letter-spacing:0.08em; background:rgba(255,255,255,.14); padding:4px 10px; border-radius:999px; }
+  .featured .kicker .dot { width:7px; height:7px; border-radius:50%; background:#ff6b5b; }
+  .featured h2 { margin:12px 0 6px; font-size:1.6rem; letter-spacing:-0.02em; line-height:1.2; }
+  .featured .hook { margin:0 0 14px; color:#d7e2f7; max-width:640px; }
+  .featured .foot { display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px; font-size:0.85rem; color:#d7e2f7; }
+  .featured .expert { display:inline-flex; align-items:center; gap:8px; }
+  .featured .expert .avatar { background:#fff; color:var(--navy); width:28px; height:28px; font-size:0.75rem; }
+  .featured .expert b { color:#fff; }
+  .featured .cta { margin-left:auto; background:#fff; color:var(--navy); font-weight:800; padding:7px 14px; border-radius:8px; }
+
+  /* Recent threads */
+  .section-h { color:var(--navy); font-size:1.1rem; margin:30px 0 12px; display:flex; align-items:baseline; gap:10px; }
+  .section-h small { color:var(--muted); font-weight:400; font-size:0.85rem; }
+  .recent { border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .recent a { display:grid; grid-template-columns:1fr auto; gap:4px 14px; align-items:center; padding:13px 18px;
+    border-bottom:1px solid var(--border); color:inherit; text-decoration:none; box-shadow:inset 4px 0 0 var(--ch, var(--accent)); }
+  .recent a:last-child { border-bottom:none; }
+  .recent a:hover { background:var(--row-hover); text-decoration:none; }
+  .recent .rt-title { color:var(--navy); font-weight:700; }
+  .recent .rt-meta { color:var(--muted); font-size:0.8rem; grid-column:1; }
+  .recent .rt-ch { grid-row:1 / span 2; grid-column:2; font-size:0.72rem; font-weight:800; text-transform:uppercase;
+    letter-spacing:0.04em; color:var(--ch); background:var(--ch-bg); padding:3px 9px; border-radius:999px; white-space:nowrap; }
+
+  main { padding:26px 0 70px; }
+  .board { border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+
+  /* Channel row */
+  .row {
+    display:grid; grid-template-columns:56px 1fr 78px 88px 1.3fr; align-items:center; gap:14px;
+    padding:18px 20px; border-bottom:1px solid var(--border); background:var(--panel);
+    transition:background .12s; text-decoration:none; color:inherit;
+    box-shadow:inset 5px 0 0 var(--ch, var(--accent));
+  }
+  .row:last-child { border-bottom:none; }
+  .row:hover { background:var(--row-hover); text-decoration:none; }
+  .row .icon { width:44px; height:44px; border-radius:12px; background:var(--ch-bg, #eef4ff); color:var(--ch, var(--accent));
+    display:flex; align-items:center; justify-content:center; }
+  .row .icon svg { width:24px; height:24px; }
+  .row h2 { margin:0 0 3px; font-size:1.12rem; color:var(--navy); }
+  .row .desc { margin:0; color:var(--muted); font-size:0.92rem; }
+  .stat { text-align:center; }
+  .stat .label { display:block; color:var(--muted); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; }
+  .stat .num { font-size:1.05rem; font-weight:700; color:var(--text); }
+  .latest { font-size:0.85rem; color:var(--muted); overflow:hidden; }
+  .latest .lt-title { color:var(--navy); font-weight:600; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .latest .lt-meta { font-size:0.8rem; }
+  .latest .none { font-style:italic; }
+
+  @media (max-width:720px) {
+    .row { grid-template-columns:44px 1fr auto; }
+    .row .stat, .row .latest { display:none; }
+  }
+
+  /* Sub pages */
+  .back { display:inline-block; color:var(--muted); margin-bottom:16px; font-size:0.9rem; }
+  .page-head { display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+  .page-head .icon { width:44px; height:44px; border-radius:12px; background:var(--ch-bg, #eef4ff); color:var(--ch, var(--accent));
+    display:flex; align-items:center; justify-content:center; }
+  .page-head .icon svg { width:24px; height:24px; }
+  .page-head h1 { margin:0; font-size:1.6rem; color:var(--navy); letter-spacing:-0.01em; }
+  .page-sub { color:var(--muted); margin:0 0 22px; }
+
+  .thread-row { display:block; padding:16px 18px; border:1px solid var(--border); border-radius:10px;
+    margin-bottom:10px; text-decoration:none; color:inherit; background:#fff; transition:border-color .12s, background .12s; }
+  .thread-row:hover { border-color:var(--accent); background:var(--row-hover); text-decoration:none; }
+  .thread-row .tr-title { color:var(--navy); font-weight:700; font-size:1.05rem; }
+  .thread-row .tr-meta { color:var(--muted); font-size:0.82rem; margin-top:3px; }
+  .pinned-tag { display:inline-block; background:#eef4ff; color:var(--accent); font-size:0.72rem;
+    font-weight:700; padding:2px 8px; border-radius:999px; margin-right:8px; text-transform:uppercase; letter-spacing:0.03em; }
+
+  .post { border:1px solid var(--border); border-radius:12px; padding:20px 22px; margin-bottom:14px; background:#fff; }
+  .post.op { border-color:#cfe0ff; background:linear-gradient(180deg,#f7faff 0%,#ffffff 260px);
+    position:relative; overflow:hidden; padding-top:22px; }
+  .post.op::before { content:""; position:absolute; top:0; left:0; right:0; height:5px;
+    background:linear-gradient(90deg,var(--accent),#5b9cff); }
+  .post .meta { font-size:0.82rem; color:var(--muted); margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+  .post .meta .name { color:var(--navy); font-weight:700; }
+  .review-badge { display:inline-flex; align-items:center; gap:5px; background:var(--navy); color:#fff;
+    font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; padding:4px 10px 4px 8px;
+    border-radius:999px; margin-bottom:12px; }
+  .review-badge svg { width:12px; height:12px; }
+  .avatar { flex:0 0 auto; width:32px; height:32px; border-radius:50%; background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.82rem; }
+  .post .op-title { font-size:1.5rem; color:var(--navy); margin:0 0 14px; letter-spacing:-0.015em; line-height:1.28; }
+  .post .body { color:var(--text); }
+  .post .body p { margin:0 0 14px; font-size:1rem; }
+  .post .body p:first-of-type { font-size:1.05rem; }
+  .post .body p:last-of-type { margin-bottom:0; }
+  .callout { border-radius:10px; padding:16px 18px; margin-top:20px; }
+  .callout-head { display:flex; align-items:center; gap:8px; font-size:0.76rem; font-weight:800;
+    text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; }
+  .callout-head svg { width:15px; height:15px; }
+  .callout-questions { background:#eef4ff; border:1px solid #d6e6ff; }
+  .callout-questions .callout-head { color:var(--accent-dim); }
+  .q-list { list-style:none; margin:0; padding:0; counter-reset:q; display:flex; flex-direction:column; gap:10px; }
+  .q-list li { position:relative; padding-left:32px; font-size:0.95rem; color:var(--text); line-height:1.45; }
+  .q-list li::before { counter-increment:q; content:counter(q); position:absolute; left:0; top:0.5px;
+    width:21px; height:21px; border-radius:50%; background:var(--accent); color:#fff; font-size:0.72rem;
+    font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .callout-refs { background:#f6f7fa; border:1px solid var(--border); }
+  .callout-refs .callout-head { color:var(--navy); }
+  .refs-list { list-style:none; margin:0; padding:0; counter-reset:r; display:flex; flex-direction:column; gap:7px; }
+  .refs-list li { position:relative; padding-left:28px; font-size:0.86rem; color:var(--muted); }
+  .refs-list li::before { counter-increment:r; content:"[" counter(r) "]"; position:absolute; left:0;
+    color:var(--navy); font-weight:700; font-size:0.8rem; font-variant-numeric:tabular-nums; }
+
+  form.card { border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-top:20px; background:#fff; }
+  form.card label { display:block; font-size:0.85rem; color:var(--muted); margin:0 0 6px; }
+  input, textarea { width:100%; background:#fff; border:1px solid var(--border); border-radius:8px;
+    color:var(--text); padding:10px 12px; font:inherit; margin-bottom:14px; }
+  textarea { resize:vertical; min-height:110px; }
+  input:focus, textarea:focus { outline:none; border-color:var(--accent); }
+  button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 20px;
+    font-weight:700; font-size:0.95rem; cursor:pointer; }
+  button:hover { background:var(--accent-dim); }
+  .form-title { font-size:1.05rem; font-weight:700; color:var(--navy); margin:0 0 12px; }
+  .error { color:#d23b3b; font-size:0.88rem; margin-top:8px; }
+  .empty { color:var(--muted); font-style:italic; }
+
+  footer.site { border-top:1px solid var(--border); color:var(--muted); font-size:0.82rem; margin-top:30px; }
+  footer.site .wrap { padding:20px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" id="logo-link" href="#/">
+      <!-- logo mark: dumbbell inside a rounded badge -->
+      <svg width="46" height="46" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#5b9cff"/><stop offset="1" stop-color="#1a4fc0"/></linearGradient></defs>
+        <rect x="1" y="1" width="38" height="38" rx="10" fill="url(#lg)"/>
+        <g stroke="#fff" stroke-width="3.4" stroke-linecap="round">
+          <line x1="12" y1="20" x2="28" y2="20"/>
+          <line x1="11" y1="14" x2="11" y2="26"/>
+          <line x1="29" y1="14" x2="29" y2="26"/>
+          <line x1="7" y1="17" x2="7" y2="23"/>
+          <line x1="33" y1="17" x2="33" y2="23"/>
+        </g>
+      </svg>
+      <span class="words"><span class="name">sbl<span class="tld">.gg</span></span>
+        <span class="sub">Science-Based Lifting</span></span>
+    </a>
+    <span class="strap">Where lifters argue the evidence with the people who produced it.</span>
+  </div>
+</header>
+
+<main><div class="wrap" id="app">Loading…</div></main>
+
+<footer class="site"><div class="wrap">sbl.gg · science-based lifting</div></footer>
+
+<script>
+/* ============================================================
+   CHANNELS  (edit descriptions/order here)
+   ============================================================ */
+const CHANNELS = [
+  { slug:"news",        title:"News & Announcements", icon:"megaphone", color:"#d9480f", bg:"#fff0e6",
+    desc:"Official updates about the forum, featured topics, and what's new." },
+  { slug:"general",     title:"General", icon:"chat", color:"#5f3dc4", bg:"#f1edff",
+    desc:"Open discussion about training, form, and everything lifting." },
+  { slug:"hypertrophy", title:"Hypertrophy", icon:"muscle", color:"#c92a2a", bg:"#fff0f0",
+    desc:"The science of building muscle: volume, intensity, failure, and frequency." },
+  { slug:"nutrition",   title:"Nutrition", icon:"apple", color:"#2b8a3e", bg:"#ebfbee",
+    desc:"Protein, diet, and fueling muscle growth — what the evidence says." },
+  { slug:"experts",     title:"Experts", icon:"grad", color:"#1a66e0", bg:"#eef4ff",
+    desc:"Q&A with researchers and invited authors from the primary literature." },
+];
+function chStyle(c){ return c ? `--ch:${c.color};--ch-bg:${c.bg};` : ""; }
+
+/* ============================================================
+   FEATURED DEBATE  (home page banner; points at a thread by its fixed key)
+   The expert is a SAMPLE placeholder until a real author agrees to take part.
+   ============================================================ */
+const FEATURED = {
+  key:"preworkout",
+  hook:"Most pre-workouts are caffeine plus a label. Is the rest of the scoop doing anything, or are you paying for tingles?",
+  expert:null, expertRole:"",   // fill in once a real researcher agrees, e.g. "Dr. Jane Doe", "exercise physiologist"
+};
+
+/* ============================================================
+   ICONS
+   ============================================================ */
+function icon(name) {
+  const s = {
+    megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h2l3 4h2v-4l9 3V7l-9 3H4a1 1 0 0 0-1 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    chat: '<path d="M4 5h16v11H9l-4 3v-3H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    muscle: '<path d="M6 4c2 0 3 2 4 4s3 2 6 2c2 0 3 1 3 3 0 4-4 7-9 7-4 0-7-2-7-6 0-2 1-3 1-5S5 4 6 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    apple: '<path d="M12 8c0-2 1-4 4-4 0 2-1 4-4 4zm0 0c-2-1.5-6-1.5-6 3 0 4 3 9 6 9s6-5 6-9c0-4.5-4-4.5-6-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    grad: '<path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.5 3 3 6 3s6-1.5 6-3v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    question: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.2 9.3a2.8 2.8 0 0 1 5.4 1c0 1.8-2.6 1.9-2.6 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1.05" fill="currentColor"/>',
+    ref: '<path d="M6 4h9l3 3v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M15 4v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    flask: '<path d="M10 3h4M10 3v6.2L5.4 18a1.6 1.6 0 0 0 1.4 2.4h10.4a1.6 1.6 0 0 0 1.4-2.4L14 9.2V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8.2" y1="14.5" x2="15.8" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  };
+  return '<svg viewBox="0 0 24 24">' + (s[name] || s.chat) + '</svg>';
+}
+
+/* ============================================================
+   STORAGE  (shared: threads + replies live in Supabase project SBL-site)
+   The publishable key is meant to be public; the database's row-level
+   security lets visitors read visible posts and add new ones, nothing else.
+   ============================================================ */
+const SB_URL = "https://hwtlwayufhevegidecuz.supabase.co/rest/v1";
+const SB_KEY = "sb_publishable_Yr1hwvk8Tz9b0O_JaXTypw_4RzIKvQF";
+let CACHE = { threads:[], replies:[] };
+function db() { return CACHE; }
+async function sb(path, opts={}) {
+  const r = await fetch(SB_URL + path, { ...opts, headers: {
+    apikey: SB_KEY, "Content-Type": "application/json", Prefer: "return=representation", ...(opts.headers||{}) } });
+  if (!r.ok) throw new Error((await r.text()) || r.statusText);
+  return r.json();
+}
+async function loadAll() {
+  const [threads, replies] = await Promise.all([
+    sb("/threads?select=id,channel,title,body,name,pinned,key,created&order=created.asc"),
+    sb("/replies?select=id,thread_id,body,name,created&order=created.asc"),
+  ]);
+  CACHE = { threads, replies: replies.map(r => ({ ...r, threadId: r.thread_id })) };
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+function threadsIn(slug){ return db().threads.filter(t=>t.channel===slug); }
+function repliesTo(id){ return db().replies.filter(r=>r.threadId===id).sort((a,b)=>a.created.localeCompare(b.created)); }
+function postCount(slug){
+  const th = threadsIn(slug);
+  const ids = new Set(th.map(t=>t.id));
+  const reps = db().replies.filter(r=>ids.has(r.threadId)).length;
+  return th.length + reps;
+}
+function latestIn(slug){
+  const th = threadsIn(slug);
+  const ids = new Set(th.map(t=>t.id));
+  let best=null;
+  th.forEach(t=>{ if(!best||t.created>best.created) best={title:t.title,name:t.name,created:t.created}; });
+  db().replies.filter(r=>ids.has(r.threadId)).forEach(r=>{
+    if(!best||r.created>best.created){
+      const t=th.find(x=>x.id===r.threadId);
+      best={title:t?t.title:"(thread)",name:r.name,created:r.created};
+    }
+  });
+  return best;
+}
+function relTime(iso){
+  const diff=(Date.now()-new Date(iso).getTime())/1000;
+  if(diff<60) return "just now";
+  if(diff<3600) return Math.floor(diff/60)+" min ago";
+  if(diff<86400) return Math.floor(diff/3600)+" hr ago";
+  return Math.floor(diff/86400)+" days ago";
+}
+function newId(){ return Date.now()+Math.floor(Math.random()*1000); }
+function initials(name){
+  const parts = (name||"?").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "?";
+  return (parts[0][0] + (parts.length>1 ? parts[parts.length-1][0] : "")).toUpperCase();
+}
+
+/* Turns raw thread/reply text into rich HTML: narrative paragraphs, plus
+   styled callout boxes for "OPEN QUESTIONS:" and "KEY REFERENCES:" sections
+   when present (falls back to plain paragraphs if a post doesn't use them). */
+function renderBody(raw){
+  const OQ = "OPEN QUESTIONS:", KR = "KEY REFERENCES:";
+  const oqIdx = raw.indexOf(OQ);
+  const krIdx = raw.indexOf(KR);
+  let main = raw, oqText = null, krText = null;
+
+  if (oqIdx !== -1 && krIdx !== -1 && krIdx > oqIdx) {
+    main = raw.slice(0, oqIdx).trim();
+    oqText = raw.slice(oqIdx + OQ.length, krIdx).trim();
+    krText = raw.slice(krIdx + KR.length).trim();
+  } else if (oqIdx !== -1) {
+    main = raw.slice(0, oqIdx).trim();
+    oqText = raw.slice(oqIdx + OQ.length).trim();
+  } else if (krIdx !== -1) {
+    main = raw.slice(0, krIdx).trim();
+    krText = raw.slice(krIdx + KR.length).trim();
+  }
+
+  let html = main.split(/\n{2,}/).filter(Boolean)
+    .map(p => `<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
+
+  if (oqText) {
+    const qs = oqText.split("\n").map(s=>s.trim()).filter(Boolean);
+    html += `<div class="callout callout-questions">
+      <div class="callout-head">${icon("question")}<span>Open Questions</span></div>
+      <ul class="q-list">${qs.map(q=>`<li>${esc(q)}</li>`).join("")}</ul>
+    </div>`;
+  }
+
+  if (krText) {
+    const refs = krText.split("·").map(s=>s.trim()).filter(Boolean);
+    html += `<div class="callout callout-refs">
+      <div class="callout-head">${icon("ref")}<span>Key References</span></div>
+      <ul class="refs-list">${refs.map(r=>`<li>${esc(r)}</li>`).join("")}</ul>
+    </div>`;
+  }
+
+  return html;
+}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+function renderHome(){
+  document.title = "sbl.gg — Science-Based Lifting Forum";
+  const rows = CHANNELS.map(c=>{
+    const last = latestIn(c.slug);
+    const lastHtml = last
+      ? `<span class="lt-title">${esc(last.title)}</span><span class="lt-meta">${relTime(last.created)} · ${esc(last.name)}</span>`
+      : `<span class="none">No posts yet</span>`;
+    return `<a class="row" href="#/c/${c.slug}" style="${chStyle(c)}">
+        <div class="icon">${icon(c.icon)}</div>
+        <div><h2>${esc(c.title)}</h2><p class="desc">${esc(c.desc)}</p></div>
+        <div class="stat"><span class="label">Threads</span><span class="num">${threadsIn(c.slug).length}</span></div>
+        <div class="stat"><span class="label">Posts</span><span class="num">${postCount(c.slug)}</span></div>
+        <div class="latest">${lastHtml}</div>
+      </a>`;
+  }).join("");
+  document.getElementById("app").innerHTML =
+    featuredHtml() + `<div class="board">${rows}</div>` + recentHtml();
+}
+
+function featuredHtml(){
+  const t = db().threads.find(x=>x.key===FEATURED.key);
+  if(!t) return "";
+  const n = repliesTo(t.id).length;
+  return `<a class="featured" href="#/t/${t.id}">
+      <span class="kicker"><span class="dot"></span>This week's debate</span>
+      <h2>${esc(t.title)}</h2>
+      <p class="hook">${esc(FEATURED.hook)}</p>
+      <div class="foot">
+        ${FEATURED.expert ? `<span class="expert"><span class="avatar">${esc(initials(FEATURED.expert.replace(/^Dr\.?\s+/,"")))}</span>
+          <span>With <b>${esc(FEATURED.expert)}</b>, ${esc(FEATURED.expertRole)}</span></span>` : ""}
+        <span>${n} ${n===1?'reply':'replies'}</span>
+        <span class="cta">Join the debate →</span>
+      </div>
+    </a>`;
+}
+
+/* Threads ordered by their latest activity (new thread or newest reply). */
+function recentHtml(){
+  const d = db();
+  const last = {};
+  d.threads.forEach(t=>{ last[t.id] = t.created; });
+  d.replies.forEach(r=>{ if(last[r.threadId] !== undefined && r.created > last[r.threadId]) last[r.threadId] = r.created; });
+  const list = d.threads.slice().sort((a,b)=>last[b.id].localeCompare(last[a.id])).slice(0,6);
+  if(!list.length) return "";
+  const items = list.map(t=>{
+    const c = CHANNELS.find(x=>x.slug===t.channel);
+    const n = repliesTo(t.id).length;
+    return `<a href="#/t/${t.id}" style="${chStyle(c)}">
+        <span class="rt-title">${esc(t.title)}</span>
+        <span class="rt-ch">${esc(c?c.title:t.channel)}</span>
+        <span class="rt-meta">active ${relTime(last[t.id])} · ${n} ${n===1?'reply':'replies'}</span>
+      </a>`;
+  }).join("");
+  return `<h3 class="section-h">Recent threads <small>where the conversation is right now</small></h3>
+    <div class="recent">${items}</div>`;
+}
+
+function renderChannel(slug){
+  const c = CHANNELS.find(x=>x.slug===slug);
+  if(!c){ renderHome(); return; }
+  document.title = c.title + " — sbl.gg";
+  const threads = threadsIn(slug).sort((a,b)=>{
+    if(!!b.pinned - !!a.pinned) return (!!b.pinned) - (!!a.pinned);
+    return b.created.localeCompare(a.created);
+  });
+  const list = threads.length ? threads.map(t=>{
+    const reps = repliesTo(t.id).length;
+    return `<a class="thread-row" href="#/t/${t.id}">
+        <div class="tr-title">${t.pinned?'<span class="pinned-tag">Pinned</span>':''}${esc(t.title)}</div>
+        <div class="tr-meta">by ${esc(t.name)} · ${relTime(t.created)} · ${reps} ${reps===1?'reply':'replies'}</div>
+      </a>`;
+  }).join("") : '<p class="empty">No threads yet — start the first one below.</p>';
+
+  document.getElementById("app").innerHTML = `
+    <a class="back" href="#/">← All channels</a>
+    <div class="page-head" style="${chStyle(c)}"><div class="icon">${icon(c.icon)}</div><h1>${esc(c.title)}</h1></div>
+    <p class="page-sub">${esc(c.desc)}</p>
+    ${list}
+    ${slug==="news" ? "" : `<form class="card" id="new-thread">
+      <p class="form-title">Start a new thread</p>
+      <label>Name (optional)</label>
+      <input id="nt-name" maxlength="60" placeholder="Anonymous" />
+      <label>Thread title</label>
+      <input id="nt-title" maxlength="140" placeholder="A specific, in-the-weeds question…" />
+      <label>Your post</label>
+      <textarea id="nt-body" maxlength="6000" placeholder="Lay out the question and any evidence…"></textarea>
+      <button type="submit">Post thread</button>
+      <div class="error" id="nt-error"></div>
+    </form>`}`;
+
+  const ntForm=document.getElementById("new-thread");
+  if(ntForm) ntForm.addEventListener("submit", e=>{
+    e.preventDefault();
+    const err=document.getElementById("nt-error"); err.textContent="";
+    const title=document.getElementById("nt-title").value.trim();
+    const body=document.getElementById("nt-body").value.trim();
+    const name=document.getElementById("nt-name").value.trim()||"Anonymous";
+    if(!title){ err.textContent="Give your thread a title."; return; }
+    if(!body){ err.textContent="Write something in the post."; return; }
+    const btn=e.target.querySelector("button"); btn.disabled=true; btn.textContent="Posting…";
+    sb("/threads",{ method:"POST", body:JSON.stringify({ channel:slug, title, body, name }) })
+      .then(rows=>loadAll().then(()=>{ location.hash="#/t/"+rows[0].id; }))
+      .catch(()=>{ err.textContent="Couldn't post. Check your connection and try again."; btn.disabled=false; btn.textContent="Post thread"; });
+  });
+}
+
+function renderThread(id){
+  const d=db();
+  const t=d.threads.find(x=>String(x.id)===String(id));
+  if(!t){ renderHome(); return; }
+  const c=CHANNELS.find(x=>x.slug===t.channel);
+  document.title = t.title + " — sbl.gg";
+  const reps=repliesTo(t.id);
+  const repHtml = reps.length ? reps.map(r=>`
+    <div class="post">
+      <div class="meta"><div class="avatar">${esc(initials(r.name))}</div><span class="name">${esc(r.name)}</span> · ${relTime(r.created)}</div>
+      <div class="body">${renderBody(r.body)}</div>
+    </div>`).join("") : '<p class="empty">No replies yet — add the first one.</p>';
+
+  const isReview = t.body.includes("OPEN QUESTIONS:") || t.body.includes("KEY REFERENCES:");
+  const reviewBadge = isReview ? `<div class="review-badge">${icon("flask")}<span>Evidence Review</span></div>` : "";
+
+  document.getElementById("app").innerHTML = `
+    <a class="back" href="#/c/${t.channel}">← ${esc(c?c.title:'Channel')}</a>
+    <div class="post op">
+      ${reviewBadge}
+      <h2 class="op-title">${esc(t.title)}</h2>
+      <div class="meta"><div class="avatar">${esc(initials(t.name))}</div><span class="name">${esc(t.name)}</span> · ${relTime(t.created)}</div>
+      <div class="body">${renderBody(t.body)}</div>
+    </div>
+    <h3 style="color:var(--navy);margin:22px 0 12px;font-size:1.1rem;">Replies</h3>
+    ${repHtml}
+    <form class="card" id="reply-form">
+      <p class="form-title">Add a reply</p>
+      <label>Name (optional)</label>
+      <input id="r-name" maxlength="60" placeholder="Anonymous" />
+      <label>Your reply</label>
+      <textarea id="r-body" maxlength="6000" placeholder="Be specific and cite sources where you can…"></textarea>
+      <button type="submit">Post reply</button>
+      <div class="error" id="r-error"></div>
+    </form>`;
+
+  document.getElementById("reply-form").addEventListener("submit", e=>{
+    e.preventDefault();
+    const err=document.getElementById("r-error"); err.textContent="";
+    const body=document.getElementById("r-body").value.trim();
+    const name=document.getElementById("r-name").value.trim()||"Anonymous";
+    if(!body){ err.textContent="Write a reply first."; return; }
+    const btn=e.target.querySelector("button"); btn.disabled=true; btn.textContent="Posting…";
+    sb("/replies",{ method:"POST", body:JSON.stringify({ thread_id:t.id, body, name }) })
+      .then(()=>loadAll()).then(()=>renderThread(id))
+      .catch(()=>{ err.textContent="Couldn't post. Check your connection and try again."; btn.disabled=false; btn.textContent="Post reply"; });
+  });
+}
+
+/* ============================================================
+   ROUTER
+   ============================================================ */
+function route(){
+  const h=(location.hash||"").replace(/^#\/?/,"");
+  const parts=h.split("/");
+  if(parts[0]==="c" && parts[1]) renderChannel(decodeURIComponent(parts[1]));
+  else if(parts[0]==="t" && parts[1]) renderThread(decodeURIComponent(parts[1]));
+  else renderHome();
+}
+window.addEventListener("hashchange", route);
+document.getElementById("app").innerHTML = '<p class="empty">Loading…</p>';
+loadAll().then(route).catch(()=>{
+  document.getElementById("app").innerHTML = '<p class="empty">Couldn\'t reach the forum. Refresh to try again.</p>';
+});
+</script>
+</body>
+</html>
