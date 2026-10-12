@@ -2,7 +2,7 @@
 --
 -- Every post that comes in through the website passes through sbl_guard() first:
 --   * posting paused (site_settings.posting_open = false) -> rejected with a message
---   * same person (IP) posting > 5 times in 10 minutes      -> rejected ("posting too fast")
+--   * same IP posting > per_ip_limit (10) times in 10 min  -> rejected ("posting too fast")
 --   * same person posting the exact same text within a day -> rejected ("already posted")
 --   * site-wide flood (> flood_limit posts in 10 minutes)  -> posting is switched OFF
 --     automatically and the post is held
@@ -17,7 +17,7 @@ create table if not exists public.site_settings (
   id           int primary key default 1 check (id = 1),
   posting_open boolean not null default true,
   flood_limit  int not null default 40,     -- posts per 10 minutes, whole site
-  per_ip_limit int not null default 5,      -- posts per 10 minutes, one person
+  per_ip_limit int not null default 10,     -- posts per 10 minutes, one IP (a household shares one)
   note         text,
   updated      timestamptz not null default now()
 );
@@ -73,6 +73,12 @@ begin
 
   ip := coalesce(nullif(hdr::json->>'cf-connecting-ip',''),
                  split_part(coalesce(hdr::json->>'x-forwarded-for',''), ',', 1));
+  -- Step 2 (Turnstile): posts then arrive from the Netlify function using the secret key,
+  -- so the visitor's real IP is passed along in x-sbl-client-ip. Trusted only from that key.
+  if coalesce(current_setting('request.jwt.claims', true)::json->>'role','') = 'service_role'
+     and nullif(hdr::json->>'x-sbl-client-ip','') is not null then
+    ip := hdr::json->>'x-sbl-client-ip';
+  end if;
   h  := md5('sbl-salt-2026:' || coalesce(ip,'unknown'));
   new.ip_hash := h;
   select * into s from site_settings where id = 1;
