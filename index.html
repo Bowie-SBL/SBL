@@ -214,7 +214,7 @@ function chStyle(c){ return c ? `--ch:${c.color};--ch-bg:${c.bg};` : ""; }
    ============================================================ */
 const FEATURED = {
   key:"preworkout",
-  hook:"Most pre-workouts are caffeine plus a label. Is the rest of the scoop doing anything, or are you paying for tingles?",
+  hook:"",   // optional one-line teaser under the title, in your own words
   expert:null, expertRole:"",   // fill in once a real researcher agrees, e.g. "Dr. Jane Doe", "exercise physiologist"
 };
 
@@ -369,7 +369,7 @@ function featuredHtml(){
   return `<a class="featured" href="#/t/${t.id}">
       <span class="kicker"><span class="dot"></span>This week's debate</span>
       <h2>${esc(t.title)}</h2>
-      <p class="hook">${esc(FEATURED.hook)}</p>
+      ${FEATURED.hook ? `<p class="hook">${esc(FEATURED.hook)}</p>` : ""}
       <div class="foot">
         ${FEATURED.expert ? `<span class="expert"><span class="avatar">${esc(initials(FEATURED.expert.replace(/^Dr\.?\s+/,"")))}</span>
           <span>With <b>${esc(FEATURED.expert)}</b>, ${esc(FEATURED.expertRole)}</span></span>` : ""}
